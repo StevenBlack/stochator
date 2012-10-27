@@ -227,7 +227,7 @@ var mutator = function(values) {
 };
 var randomPoint = new Stochator(x, y, mutator);
 
-randomPoint.next() // { x: 79, y: 65 }
-randomPoint.next() // { x: 151, y: 283 }
-randomPoint.next() // { x: 5, y: 253 }
+randomPoint.next(); // { x: 79, y: 65 }
+randomPoint.next(); // { x: 151, y: 283 }
+randomPoint.next(); // { x: 5, y: 253 }
 ````
