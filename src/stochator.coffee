@@ -121,6 +121,7 @@ setGenerator = (values, replacement = true, shuffle = false, weights = null) ->
 	else
 		-> randomSetMemberWithoutReplacement(set)
 
+global = if module?.exports then module.exports else this
 
 class global.Stochator
 
@@ -183,9 +184,4 @@ class global.Stochator
 
 	toString: ->
 		"[object Stochator]"
-
-if module.exports
-	module.exports = Stochator
-else
-	this.Stochator = Stochator
 
