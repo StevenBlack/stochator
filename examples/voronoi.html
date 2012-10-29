@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="lib/d3.styles.css"/>
+    <style type="text/css">
+
+      #states path {
+        fill: #ccc;
+        stroke: #fff;
+      }
+
+      path.cell {
+        fill: none;
+        pointer-events: all;
+        stroke: brown;
+      }
+
+      circle {
+        fill: black;
+      }
+
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript" src="../build/stochator.js"></script>
+    <script type="text/javascript" src="lib/d3.js"></script>
+    <script type="text/javascript" src="lib/d3.geo.js"></script>
+    <script type="text/javascript" src="lib/d3.geom.js"></script>
+    <script type="text/javascript">
+
+var initializeCells = function(width, height) {
+
+  var projection = d3.geo.azimuthal()
+      .mode("equidistant")
+      .origin([-98, 38])
+      .scale(1400)
+      .translate([640, 360]);
+
+  var path = d3.geo.path()
+      .projection(projection);
+
+  var svg = d3.select("body").insert("svg:svg", "h2")
+      .attr("width", width)
+      .attr("height", height);
+
+  var cells = svg.append("svg:g")
+      .attr("id", "cells");
+
+  return cells;
+};
+
+var generatePositions = function(maxX, maxY, number) {
+  var xOrd = { min: 0, max: maxX, kind: 'integer' };
+  var yOrd = { min: 0, max: maxY, kind: 'integer' };
+  var pointGenerator = new Stochator(xOrd, yOrd);
+  var positions = [];
+  for (var i = 0; i < number; i++) {
+    positions.push(pointGenerator.next());
+  }
+
+  return positions;
+};
+
+var drawDiagram = function(cells, positions, width, height) {
+  // Compute the Voronoi diagram of airports' projected positions.
+  
+  var polygons = d3.geom.voronoi(positions).map(function(polygon) {
+    return d3.geom.polygon(clipRectangle(polygon, width, height));
+  });
+
+  var g = cells.selectAll("g")
+      .data(positions)
+      .enter().append("svg:g");
+
+  g.append("svg:path")
+      .attr("class", "cell")
+      .attr("d", function(d, i) { return "M" + polygons[i].join("L") + "Z"; });
+
+  g.append("svg:circle")
+      .attr("cx", function(d, i) { return positions[i][0]; })
+      .attr("cy", function(d, i) { return positions[i][1]; })
+      .attr("r", 1.5);
+};
+
+var clipRectangle = function(polygon, maxWidth, maxHeight) {
+  return polygon.map(function(point) {
+    return [
+      Math.min(maxWidth, Math.max(0, point[0])),
+      Math.min(maxHeight, Math.max(0, point[1]))
+    ];
+  });
+};
+
+var mask = [ [0, 0], [1280, 0], [1280, 800], [800, 0] ];
+
+var width = mask[1][0], height = mask[3][0];
+
+var cells = initializeCells(width, height);
+
+var positions = generatePositions(width, height, 100);
+
+var diagram = drawDiagram(cells, positions, width, height);
+
+
+
+    </script>
+  </body>
+</html>
